@@ -50,16 +50,16 @@ public class table implements Serializable {
 	}
 
 	public static void main(String[] args) throws Exception {
-//		table x = new table("test", 2);
-//		x.cNames.put("Name", 1);
-//		x.cNames.put("Age", 2);
-//		Hashtable<String, String> values = new Hashtable<String, String>();
-//		values.put("Name", "Ahmad");
-//		values.put("Age" , "5");
-//		x.insertIntoPage(values);
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("testpage1")));
-		page test = (page) in.readObject();
-		System.out.println(test.data[0][0] + " " + test.data[0][1]);
+		table x = new table("test", 2);
+		x.cNames.put("Name", 1);
+		x.cNames.put("Age", 2);
+		Hashtable<String, String> values = new Hashtable<String, String>();
+		values.put("Name", "Ahmad");
+		values.put("Age" , "5");
+		x.insertIntoPage(values);
+//		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("testpage1")));
+//		page test = (page) in.readObject();
+//		System.out.println(test.data[0][0] + " " + test.data[0][1]);
 	}
 
 }
