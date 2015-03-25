@@ -18,7 +18,7 @@ public class page implements Serializable {
 	
 	public page(String name , int num , int cols) throws IOException {
 		this.num = num;
-		data = new Object[200][cols];
+		data = new Object[200][cols + 1];
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + num)));
 		out.writeObject(this);
 		out.close();
