@@ -35,8 +35,6 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	 * @uml.property  name="numberOfItems"
 	 */
 	private int numberOfItems;
-
-	private int number = 0;
 	/**
 	 * @uml.property  name="buckets"
 	 * @uml.associationEnd  multiplicity="(0 -1)" inverse="this$0:data_structures.linearHashTable.LinearHashTable$Bucket"
@@ -51,9 +49,11 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	private void init() {
-		size = 0;
+		size = 2;
 		digits = 1;
 		Bucket bucket = new Bucket(bucketSize);
+		buckets.add(bucket);
+		bucket = new Bucket(bucketSize);
 		buckets.add(bucket);
 		Random generator = new Random();
 		hashSeed = generator.nextInt();
@@ -76,10 +76,16 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 
 	private LHTEntry getEntry(Object key) {
 		if (key instanceof Object){
+			//	System.out.println(key);
 			int b = getBucket((Object)key);
+			//	System.out.println(b);
 			Bucket bucket = buckets.get(b);
+			//	for(int i = 0 ; i < bucket.entries.length ; i++) {
+			//		System.out.println(bucket.entries[i].value);
+			//	}
 			LHTEntry entry;
 			entry = bucket.getEntry(key);
+			//	System.out.println(entry);
 			return entry;
 		}
 		return null;
@@ -98,11 +104,18 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	public int getBucket(Object key){
-		int hash = hash(key);
-		number |= (1 << (32 - digits));
-		int bits = hash & number;
-		bits = Integer.parseInt(Integer.toBinaryString(bits).substring(0, digits));
-		if(bits <= size){
+		int hash = //key.hashCode(); 
+					hash(key);
+		//	number |= (1 << (32 - digits));
+		//	int bits = hash;
+		//	System.out.println("digits : " + digits);
+		int bits = hash == 0 ? 0 : Integer.parseInt(Integer.toBinaryString(hash).substring(0, digits) , 2);
+		//	System.out.println("bits : " + bits);
+		//	System.out.println(Integer.toBinaryString(bits).substring(0 , digits));
+		//	System.out.println(Integer.parseInt(Integer.toBinaryString(bits).substring(0, digits) , 2));
+		//	System.out.println("-----");
+		//	bits = Integer.parseInt(Integer.toBinaryString(bits).substring(0, digits) , 2);
+		if(bits < size){
 			return bits;
 		}else{
 			bits = bits - (int)Math.pow(2, (digits-1));
@@ -113,28 +126,36 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	@Override
 	public Object put(Object key, Object value) {
 		int b = getBucket(key);
+		System.out.println("bucket for insert:" + b);
+		//	System.out.println("buckets number :" + buckets.size());
+		//	System.err.println(buckets.size());
 		Bucket bucket = buckets.get(b);
 		int hash = hash(key);
 		bucket.put(key, value, hash);
 		numberOfItems++;
-		if(numberOfItems / ((size+1) * bucketSize) >= loadFactor){
+		if((float) numberOfItems / ((size) * bucketSize) >= loadFactor){
+			//		System.out.println("!!!");
 			resize();
 		}
+		//	System.out.println("hashtable size : " + numberOfItems);
+		System.out.println("-------");
 		return null;
 	}
 
 	private void resize() {
-		//		size++;
-		for(int i = 0 ; i < size ; i++) {
+		//		size++;v
+		int temp = size;
+		size *= 2;
+		for(int i = 0 ; i < temp ; i++) {
 			Bucket b = new Bucket(bucketSize);
 			buckets.add(b);
 		}
 		digits++;
-		for(int i = 0 ; i < size ; i++) {
+		for(int i = 0 ; i < temp ; i++) {
 			Bucket bucket = buckets.get(i);
 			bucket.scan();
 		}
-		size *= 2;
+		//	System.out.println("size after resizing :" + size);
 	}
 
 	public void downSize(){
@@ -243,10 +264,18 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 		}
 
 		public LHTEntry getEntry(Object key) {
+			Object dataKey = (Object) key;
 			for (int i = 0; i < lastItem; i++) {
-				Object dataKey = (Object) key;
 				if(entries[i].getKey().equals(dataKey)){
 					return entries[i];
+				}
+			}
+			if(overflow != null) {
+				Iterator<LHTEntry> itr = overflow.iterator();
+				while(itr.hasNext()) {
+					LHTEntry element = itr.next();
+					if(element.getKey().equals(dataKey))
+						return element;
 				}
 			}
 			return null;
@@ -265,8 +294,8 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 
 		public void scan() {
 			for (int i=0; i< lastItem; i++){
-				int bits = entries[i].hash & number;
-				bits = Integer.parseInt(Integer.toBinaryString(bits).substring(0 , digits));
+				int bits = entries[i].hash;
+				bits = bits == 0 ? 0 : Integer.parseInt(Integer.toBinaryString(bits).substring(0 , digits) , 2);
 				if(bits > (int)Math.pow(2, digits-1)-1){
 					LHTEntry entry = entries[i];
 					remove(entries[i].key);
@@ -280,8 +309,8 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 				while(itr.hasNext()) {
 					LHTEntry element;
 					element = itr.next();
-					int bits = element.hash & number;
-					bits = Integer.parseInt(Integer.toBinaryString(bits).substring(0 , digits));
+					int bits = element.hash;
+					bits = bits == 0 ? 0 : Integer.parseInt(Integer.toBinaryString(bits).substring(0 , digits));
 					if(bits > (int)Math.pow(2, digits-1)-1){
 						itr.remove();
 						numberOfItems--;
@@ -342,6 +371,13 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 			this.value = value;
 			return old;
 		}
+	}
+
+	public static void main(String[] args) {
+		ExtensibleHashTable test = new ExtensibleHashTable(0.75f, 2);
+		test.put("aaa", 1);
+		test.put("asd", 2);
+		test.put("test" , 3);
 	}
 
 }
