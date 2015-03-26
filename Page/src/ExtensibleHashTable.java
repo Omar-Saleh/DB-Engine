@@ -1,3 +1,5 @@
+import java.awt.Point;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -7,9 +9,9 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * @author  mohamed
+ * @author  Omar Saleh
  */
-public class ExtensibleHashTable implements Map<Object, Object> {
+public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 
 	/**
 	 * @uml.property  name="loadFactor"
@@ -98,7 +100,7 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	@Override
-	public Object get(Object key) {
+	public Point get(Object key) {
 		LHTEntry entry = getEntry(key);
 		return null == entry ? null : entry.getValue();
 	}
@@ -124,9 +126,9 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	@Override
-	public Object put(Object key, Object value) {
+	public Point put(Object key, Point value) {
 		int b = getBucket(key);
-		System.out.println("bucket for insert:" + b);
+		//	System.out.println("bucket for insert:" + b);
 		//	System.out.println("buckets number :" + buckets.size());
 		//	System.err.println(buckets.size());
 		Bucket bucket = buckets.get(b);
@@ -138,7 +140,7 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 			resize();
 		}
 		//	System.out.println("hashtable size : " + numberOfItems);
-		System.out.println("-------");
+		//System.out.println("-------");
 		return null;
 	}
 
@@ -175,7 +177,7 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	@Override
-	public Object remove(Object key) {
+	public Point remove(Object key) {
 		int b = getBucket(key);
 		Bucket bucket = buckets.get(b);
 		LHTEntry entry = bucket.remove((Object)key);
@@ -184,7 +186,7 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	@Override
-	public void putAll(Map<? extends Object, ? extends Object> m) {
+	public void putAll(Map<? extends Object, ? extends Point> m) {
 		// TODO Auto-generated method stub
 
 	}
@@ -202,19 +204,19 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	@Override
-	public Collection<Object> values() {
+	public Collection<Point> values() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Set<Entry<Object, Object>> entrySet() {
+	public Set<Entry<Object, Point>> entrySet() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/**
-	 * @author   mohamed
+	 * @author   Omar Saleh
 	 */
 	class Bucket {
 		/**
@@ -281,7 +283,7 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 			return null;
 		}
 
-		public void put(Object key, Object value, int hash) {
+		public void put(Object key, Point value, int hash) {
 			if(lastItem == entries.length){
 				overflow.add(new LHTEntry(key, value, hash));
 			}else{
@@ -322,9 +324,9 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 	}
 
 	/**
-	 * @author   mohamed
+	 * @author   Omar Saleh
 	 */
-	class LHTEntry implements Entry<Object, Object>{
+	class LHTEntry implements Entry<Object, Point>{
 		/**
 		 * @uml.property  name="key"
 		 * @uml.associationEnd  
@@ -334,10 +336,10 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 		 * @uml.property  name="value"
 		 * @uml.associationEnd  
 		 */
-		private Object value;
+		private Point value;
 		private int hash;
 
-		public LHTEntry(Object key, Object value, int hash) {
+		public LHTEntry(Object key, Point value, int hash) {
 			this.key = key;
 			this.value = value;
 			this.hash = hash;
@@ -347,7 +349,7 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 		 * @return
 		 * @uml.property  name="value"
 		 */
-		public Object getValue(){
+		public Point getValue(){
 			return value;
 		}
 
@@ -366,8 +368,8 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 		 * @uml.property  name="value"
 		 */
 		@Override
-		public Object setValue(Object value) {
-			Object old = this.value;
+		public Point setValue(Point value) {
+			Point old = this.value;
 			this.value = value;
 			return old;
 		}
@@ -375,9 +377,16 @@ public class ExtensibleHashTable implements Map<Object, Object> {
 
 	public static void main(String[] args) {
 		ExtensibleHashTable test = new ExtensibleHashTable(0.75f, 2);
-		test.put("aaa", 1);
-		test.put("asd", 2);
-		test.put("test" , 3);
+		for(int i = 0 ; i <= 1000 ; i++) {
+			test.put(i, new Point(i, i));
+		//	System.out.println(test.buckets.size());
+		}
+//		System.out.println(test.get(1).x);
+//		for (int i = 0; i <= 1000; i++) {
+//			if(i == 500)
+//				System.out.println();
+//			System.out.print(test.get(i).x + "" + test.get(i).y);
+//		}
 	}
 
 }
