@@ -13,10 +13,7 @@ import java.util.Set;
  */
 public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 
-	/**
-	 * @uml.property  name="loadFactor"
-	 */
-	private float loadFactor;
+	
 	/**
 	 * @uml.property  name="bucketSize"
 	 */
@@ -33,6 +30,8 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 	 * @uml.property  name="hashSeed"
 	 */
 	private int hashSeed;
+	private int a;
+	private int b;
 	/**
 	 * @uml.property  name="numberOfItems"
 	 */
@@ -43,8 +42,7 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 	 */
 	private ArrayList<Bucket> buckets;
 
-	public ExtensibleHashTable(float loadFactor, int bucketSize) {
-		this.loadFactor = loadFactor;
+	public ExtensibleHashTable(int bucketSize) {
 		this.bucketSize = bucketSize;
 		buckets = new ArrayList<>();
 		init();
@@ -59,6 +57,8 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		buckets.add(bucket);
 		Random generator = new Random();
 		hashSeed = generator.nextInt();
+		a = generator.nextInt();
+		b = generator.nextInt();
 	}
 
 	@Override
@@ -80,8 +80,11 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		if (key instanceof Object){
 			//	System.out.println(key);
 			int b = getBucket((Object)key);
-			//	System.out.println(b);
 			Bucket bucket = buckets.get(b);
+			//		System.out.println(b);
+			//		for(int i = 0 ; i < bucket.lastItem ; i++) {
+			//			System.out.println(bucket.entries[i].value);
+			//		}
 			//	for(int i = 0 ; i < bucket.entries.length ; i++) {
 			//		System.out.println(bucket.entries[i].value);
 			//	}
@@ -107,7 +110,7 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 
 	public int getBucket(Object key){
 		int hash = //key.hashCode(); 
-					hash(key);
+				hash(a , b , key);
 		//	number |= (1 << (32 - digits));
 		//	int bits = hash;
 		//	System.out.println("digits : " + digits);
@@ -117,12 +120,13 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		//	System.out.println(Integer.parseInt(Integer.toBinaryString(bits).substring(0, digits) , 2));
 		//	System.out.println("-----");
 		//	bits = Integer.parseInt(Integer.toBinaryString(bits).substring(0, digits) , 2);
-		if(bits < size){
-			return bits;
-		}else{
-			bits = bits - (int)Math.pow(2, (digits-1));
-			return bits;
-		}
+		//	if(bits < size){
+		//		return bits;
+		//	}else{
+		//		bits = bits - (int)Math.pow(2, (digits-1));
+		//		return bits;
+		//	}
+		return bits;
 	}
 
 	@Override
@@ -132,13 +136,28 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		//	System.out.println("buckets number :" + buckets.size());
 		//	System.err.println(buckets.size());
 		Bucket bucket = buckets.get(b);
-		int hash = hash(key);
-		bucket.put(key, value, hash);
-		numberOfItems++;
-		if((float) numberOfItems / ((size) * bucketSize) >= loadFactor){
-			//		System.out.println("!!!");
+		if(bucketSize == bucket.lastItem) {
 			resize();
+			put(key , value);
 		}
+		else {
+			int hash = hash(a , b ,key);
+			bucket.put(key, value, hash);
+			numberOfItems++;
+		}
+		//	System.out.println(bucket.lastItem);
+		//	System.out.println(bucketSize);
+		//	if(bucketSize == bucket.lastItem){
+		//System.out.println("!!!");
+		//	System.out.println(key);
+		//	System.out.println(hash);
+		//	System.out.println(b);
+		//	System.out.println(bucket.entries[1].key);
+		//	System.out.println(bucket.lastItem);
+		//	System.out.println(buckets.size());
+		//	System.out.println("-----");
+		//		resize();
+		//	}
 		//	System.out.println("hashtable size : " + numberOfItems);
 		//System.out.println("-------");
 		return null;
@@ -157,7 +176,7 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 			Bucket bucket = buckets.get(i);
 			bucket.scan();
 		}
-		//	System.out.println("size after resizing :" + size);
+		//		System.out.println("size after resizing :" + size);
 	}
 
 	public void downSize(){
@@ -169,11 +188,27 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		return super.hashCode();
 	}
 
-	final int hash(Object k) {
-		int h = hashSeed;
-		h ^= k.hashCode();
-		h ^= (h >>> 20) ^ (h >>> 12);
-		return h ^ (h >>> 7) ^ (h >>> 4);
+	//	final int hash(Object k) {
+	//		int h = hashSeed;
+	//		h ^= k.hashCode();
+	//		h ^= (h >>> 20) ^ (h >>> 12);
+	//		return h ^ (h >>> 7) ^ (h >>> 4);
+	//	}
+
+	final int hash(int a , int b , Object k)
+	{
+		int c = k.hashCode();
+		//	System.out.println(a + " " + b);
+		a=a-b;  a=a-c;  a=a^(c >>> 13);
+		b=b-c;  b=b-a;  b=b^(a << 8);
+		c=c-a;  c=c-b;  c=c^(b >>> 13);
+		a=a-b;  a=a-c;  a=a^(c >>> 12);
+		b=b-c;  b=b-a;  b=b^(a << 16);
+		c=c-a;  c=c-b;  c=c^(b >>> 5);
+		a=a-b;  a=a-c;  a=a^(c >>> 3);
+		b=b-c;  b=b-a;  b=b^(a << 10);
+		c=c-a;  c=c-b;  c=c^(b >>> 15);
+		return c;
 	}
 
 	@Override
@@ -225,7 +260,7 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		 */
 		LHTEntry[] entries;
 		int lastItem;
-		LinkedList<LHTEntry> overflow;
+		//	LinkedList<LHTEntry> overflow;
 
 		public Bucket(int bucketSize) {
 			entries = new LHTEntry[bucketSize];
@@ -240,28 +275,28 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 					for (int j = i; j < lastItem-1; j++) {
 						entries[j] = entries[j+1];
 					}
-					if(overflow != null){
-						if(! overflow.isEmpty()){
-							LHTEntry entry =overflow.removeFirst();
-							entries[entries.length-1] = entry;
-							lastItem++;
-						}
-					}
+					//					if(overflow != null){
+					//						if(! overflow.isEmpty()){
+					//							LHTEntry entry =overflow.removeFirst();
+					//							entries[entries.length-1] = entry;
+					//							lastItem++;
+					//						}
+					//					}
 					lastItem--;
 					return r;
 				}
 			}
-			if(overflow != null){
-				Iterator<LHTEntry> itr = overflow.iterator();
-				while(itr.hasNext()) {
-					LHTEntry element = itr.next();
-					if ((element.getKey()).equals(key)){
-						r = element;
-						itr.remove();
-						break;
-					}
-				}
-			}
+			//			if(overflow != null){
+			//				Iterator<LHTEntry> itr = overflow.iterator();
+			//				while(itr.hasNext()) {
+			//					LHTEntry element = itr.next();
+			//					if ((element.getKey()).equals(key)){
+			//						r = element;
+			//						itr.remove();
+			//						break;
+			//					}
+			//				}
+			//			}
 			return r;
 		}
 
@@ -272,24 +307,24 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 					return entries[i];
 				}
 			}
-			if(overflow != null) {
-				Iterator<LHTEntry> itr = overflow.iterator();
-				while(itr.hasNext()) {
-					LHTEntry element = itr.next();
-					if(element.getKey().equals(dataKey))
-						return element;
-				}
-			}
+			//			if(overflow != null) {
+			//				Iterator<LHTEntry> itr = overflow.iterator();
+			//				while(itr.hasNext()) {
+			//					LHTEntry element = itr.next();
+			//					if(element.getKey().equals(dataKey))
+			//						return element;
+			//				}
+			//			}
 			return null;
 		}
 
 		public void put(Object key, Point value, int hash) {
 			if(lastItem == entries.length){
-				overflow.add(new LHTEntry(key, value, hash));
+				//				overflow.add(new LHTEntry(key, value, hash));
 			}else{
 				entries[lastItem++] = new LHTEntry(key, value, hash);
 				if(lastItem == entries.length){
-					overflow = new LinkedList<>();
+					//overflow = new LinkedList<>();
 				}
 			}
 		}
@@ -298,28 +333,33 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 			for (int i=0; i< lastItem; i++){
 				int bits = entries[i].hash;
 				bits = bits == 0 ? 0 : Integer.parseInt(Integer.toBinaryString(bits).substring(0 , digits) , 2);
-				if(bits > (int)Math.pow(2, digits-1)-1){
+				//	System.out.println(entries[i].key + " "  + bits);
+				//		System.out.println("-----");
+				int temp = entries[i].hash;
+				temp = temp == 0 ? 0 : Integer.parseInt(Integer.toBinaryString(temp).substring(0, digits - 1) , 2);
+				if(bits != temp){
 					LHTEntry entry = entries[i];
 					remove(entries[i].key);
 					numberOfItems--;
+					//		System.out.println(entry.getKey() + " " + entry.getValue());
 					ExtensibleHashTable.this.put(entry.getKey(),entry.getValue());
 					i--;
 				}
 			}
-			if (overflow != null){
-				Iterator<LHTEntry> itr = overflow.iterator();
-				while(itr.hasNext()) {
-					LHTEntry element;
-					element = itr.next();
-					int bits = element.hash;
-					bits = bits == 0 ? 0 : Integer.parseInt(Integer.toBinaryString(bits).substring(0 , digits));
-					if(bits > (int)Math.pow(2, digits-1)-1){
-						itr.remove();
-						numberOfItems--;
-						ExtensibleHashTable.this.put(element.getKey(),element.getValue());
-					}
-				}
-			}
+			//			if (overflow != null){
+			//				Iterator<LHTEntry> itr = overflow.iterator();
+			//				while(itr.hasNext()) {
+			//					LHTEntry element;
+			//					element = itr.next();
+			//					int bits = element.hash;
+			//					bits = bits == 0 ? 0 : Integer.parseInt(Integer.toBinaryString(bits).substring(0 , digits));
+			//					if(bits > (int)Math.pow(2, digits-1)-1){
+			//						itr.remove();
+			//						numberOfItems--;
+			//						ExtensibleHashTable.this.put(element.getKey(),element.getValue());
+			//					}
+			//				}
+			//			}
 		}
 	}
 
@@ -375,18 +415,35 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		}
 	}
 
-//	public static void main(String[] args) {
-//		ExtensibleHashTable test = new ExtensibleHashTable(0.75f, 2);
-//		for(int i = 0 ; i <= 1000 ; i++) {
-//			test.put(i, new Point(i, i));
-		//	System.out.println(test.buckets.size());
-//		}
-//		System.out.println(test.get(1).x);
-//		for (int i = 0; i <= 1000; i++) {
-//			if(i == 500)
-//				System.out.println();
-//			System.out.print(test.get(i).x + "" + test.get(i).y);
-//		}
-//	}
+	public static void main(String[] args) {
+		ExtensibleHashTable test = new ExtensibleHashTable(2);
+		for(int i = 0 ; i <= 1000 ; i++) {
+			test.put(i, new Point(i, i));
+			//			System.out.println(test.buckets.size());
+		}
+		//	for(int i = 0 ; i < 10 ; i++) {
+		//		System.out.println(test.hash(1));
+		//	}
+		//	for(int i = 0 ; i < test.buckets.size() ; i++) {
+		//		System.out.println(i);
+		//		Bucket temp = test.buckets.get(i);
+		//	for(int j = 0 ; j < temp.lastItem ; j++) {
+		//			System.out.print(temp.entries[j].value + " ");
+		//		}
+		//		System.out.println();
+		//		System.out.println("--------");
+		//	}
+		//	test.put(1, new Point(1 , 1));
+		//	test.put(2, new Point(2 , 2));
+		//	test.put(3, new Point(3 , 3));
+		//	test.put(4, new Point(4 , 4));
+		System.out.println(test.get(500));
+		System.out.println(test.buckets.size());
+		for (int i = 0; i <= 1000 ; i++) {
+			if(i == 500)
+				System.out.println();
+			System.out.print(test.get(i).x + "" + test.get(i).y);
+		}
+	}
 
 }

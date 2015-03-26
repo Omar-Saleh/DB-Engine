@@ -30,7 +30,7 @@ public class Table implements Serializable {
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name)));
 		out.writeObject(this);
 		out.close();
-		ExtensibleHashTable key_index = new ExtensibleHashTable(0.75f, 2);
+		ExtensibleHashTable key_index = new ExtensibleHashTable(2);
 		out = new ObjectOutputStream(new FileOutputStream(new File(name + key)));
 		out.writeObject(key_index);
 		out.close();

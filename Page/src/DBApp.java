@@ -25,7 +25,7 @@ public class DBApp {
 		Table load = (Table) in.readObject();
 		in.close();
 		load.indexes.add(Colname);
-		ExtensibleHashTable newIndex = new ExtensibleHashTable(0.75f, 2);
+		ExtensibleHashTable newIndex = new ExtensibleHashTable(2);
 		for(int i = 0 ; i <= load.p_index ; i++) {
 			in = new ObjectInputStream(new FileInputStream(new File(name + "page" + i)));
 			Page toBeInserted = (Page) in.readObject();
