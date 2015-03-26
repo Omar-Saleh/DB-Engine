@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 
-public class page implements Serializable {
+public class Page implements Serializable {
 
 	Object[][] data;
 	int index = 0;
 	int num;
 	
-	public page(String name , int num , int cols) throws IOException {
+	public Page(String name , int num , int cols) throws IOException {
 		this.num = num;
 		data = new Object[200][cols + 1];
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + num)));

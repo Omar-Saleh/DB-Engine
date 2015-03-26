@@ -13,7 +13,7 @@ import java.util.Hashtable;
 import java.util.Set;
 
 
-public class table implements Serializable {
+public class Table implements Serializable {
 
 	String name;
 	int p_index;
@@ -22,7 +22,7 @@ public class table implements Serializable {
 	HashMap<String, Integer> cNames = new HashMap<String, Integer>();
 	ArrayList<String> indexes = new ArrayList<String>();
 	
-	public table(String name , int cols , Hashtable<String, String> name_type , String key) throws IOException {
+	public Table(String name , int cols , Hashtable<String, String> name_type , String key) throws IOException {
 		mapCols(name_type);
 		this.name = name;
 		this.cols = cols;
@@ -45,10 +45,10 @@ public class table implements Serializable {
 	}
 
 	public void insertIntoPage(Hashtable<String, String> values) throws IOException , ClassNotFoundException {
-		p_index = (size / 200) + 1;
+		p_index = (size / 200);
 		try {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + "page" + p_index)));
-			page load = (page) in.readObject();
+			Page load = (Page) in.readObject();
 			in.close();
 			Set<String> keys = values.keySet();
 			for(String key : keys) {
@@ -72,7 +72,7 @@ public class table implements Serializable {
 			}
 		}
 		catch(FileNotFoundException e) {
-			new page(name ,p_index, cols);
+			new Page(name ,p_index, cols);
 			insertIntoPage(values);
 		}
 	//	System.out.println("here");
