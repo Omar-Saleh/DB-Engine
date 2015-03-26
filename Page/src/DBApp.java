@@ -48,9 +48,6 @@ public class DBApp {
 		Table load = (Table) in.readObject();
 		in.close();
 		load.insertIntoPage(values);
-		ObjectOutputStream out = new ObjectOutputStream(new ObjectOutputStream(new FileOutputStream(name)));
-		out.writeObject(load);
-		out.close();
 	}
 	
 	public void createMultiDimIndex(String name, ArrayList<String> colNames) throws FileNotFoundException, IOException, ClassNotFoundException

@@ -83,6 +83,9 @@ public class Table implements Serializable {
 				out.writeObject(kdt);
 				out.close();
 			}
+			out = new ObjectOutputStream(new FileOutputStream(new File(name)));
+			out.writeObject(this);
+			out.close();
 		}
 		catch(FileNotFoundException e) {
 			new Page(name ,p_index, cols);
