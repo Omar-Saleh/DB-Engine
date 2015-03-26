@@ -16,11 +16,12 @@ import java.util.Set;
 public class Table implements Serializable {
 
 	String name;
-	int p_index;
+	int p_index = 0;
 	int size = 0;
 	int cols;
 	HashMap<String, Integer> cNames = new HashMap<String, Integer>();
 	ArrayList<String> indexes = new ArrayList<String>();
+	ArrayList<String[]> multiIndexes = new ArrayList<String[]>();
 	
 	public Table(String name , int cols , Hashtable<String, String> name_type , String key) throws IOException {
 		mapCols(name_type);
@@ -28,10 +29,10 @@ public class Table implements Serializable {
 		this.cols = cols;
 		indexes.add(key);
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name)));
+		ExtensibleHashTable key_index = new ExtensibleHashTable(2);
 		out.writeObject(this);
 		out.close();
-		ExtensibleHashTable key_index = new ExtensibleHashTable(2);
-		out = new ObjectOutputStream(new FileOutputStream(new File(name + key)));
+		out = new ObjectOutputStream(new FileOutputStream(new File(name + key + "hash")));
 		out.writeObject(key_index);
 		out.close();
 	}
@@ -63,11 +64,23 @@ public class Table implements Serializable {
 			out.writeObject(load);
 			out.close();
 			for(int i = 0 ; i < indexes.size() ; i++) {
-				in = new ObjectInputStream(new FileInputStream(new File(name + indexes.get(i))));
+				in = new ObjectInputStream(new FileInputStream(new File(name + indexes.get(i) + "hash")));
 				ExtensibleHashTable temp = (ExtensibleHashTable) in.readObject();
 				temp.put(values.get(indexes.get(i)), new Point(p_index, load.index - 1));
-				out = new ObjectOutputStream(new FileOutputStream(new File(name + indexes.get(i))));
+				out = new ObjectOutputStream(new FileOutputStream(new File(name + indexes.get(i) + "hash")));
 				out.writeObject(temp);
+				out.close();
+			}
+			for(int i = 0 ; i < multiIndexes.size() ; i++) {
+				String temp = "";
+				for(int j = 0 ; j < multiIndexes.get(i).length ; j++) {
+					temp += multiIndexes.get(i)[j];
+				}
+				in = new ObjectInputStream(new FileInputStream(new File(name + temp + "kdt")));
+				KDTree kdt = (KDTree) in.readObject();
+				kdt.insert(multiIndexes.get(i), new Point(p_index, load.index - 1));
+				out = new ObjectOutputStream(new FileOutputStream(new File(name + temp + "kdt")));
+				out.writeObject(kdt);
 				out.close();
 			}
 		}
@@ -78,7 +91,7 @@ public class Table implements Serializable {
 	//	System.out.println("here");
 	}
 
-	public static void main(String[] args) throws Exception {
+//	public static void main(String[] args) throws Exception {
 //		HashMap<String, Integer> cNames = new HashMap<String, Integer>();
 //		cNames.put("Name", 1);
 //		cNames.put("Age", 2);
@@ -95,6 +108,6 @@ public class Table implements Serializable {
 //		page test = (page) in.readObject();
 //		System.out.println(test.data[0][0] + " " + test.data[0][1] + " " + test.data[0][2]);
 //		System.out.println(test.data[1][0] + " " + test.data[1][1] + " " + test.data[1][2]);
-	}
+//	}
 
 }

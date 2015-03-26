@@ -1,318 +1,310 @@
+/**
+ * This file is part of the Java Machine Learning Library
+ * 
+ * The Java Machine Learning Library is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * The Java Machine Learning Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with the Java Machine Learning Library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * Copyright (c) 2006-2012, Thomas Abeel
+ * 
+ * Project: http://java-ml.sourceforge.net/
+ * 
+ * 
+ * based on work by Simon Levy
+ * http://www.cs.wlu.edu/~levy/software/kd/
+ */
 
-import java.util.ArrayList;
-import java.util.Arrays;
 
-class Node {
-	String key;
-	Node left;
-	Node right;
-	Node parent;
-	Bucket leftBucket;
-	Bucket rightBucket;
-	int level;
 
-	public Node() {
 
+import java.awt.Point;
+import java.io.Serializable;
+import java.util.Vector;
+
+/**
+ * kDTree is a class supporting KD-tree insertion, deletion, equality search, range search, and nearest neighbor(s) using double-precision floating-point keys. Splitting dimension is chosen naively, by depth modulo K. Semantics are as follows: <UL> <LI>Two different keys containing identical numbers should retrieve the same value from a given KD-tree. Therefore keys are cloned when a node is inserted. <BR> <BR> <LI>As with Hashtables, values inserted into a KD-tree are <I>not</I> cloned. Modifying a value between insertion and retrieval will therefore modify the value stored in the tree. </UL>
+ * @author  Simon Levy, Bjoern Heckel
+ * @version  %I%, %G%
+ * @since  JDK1.2
+ */
+@SuppressWarnings("ALL")
+public class KDTree implements Serializable{
+
+	// K = number of dimensions
+	/**
+     * @uml.property  name="m_K"
+     */
+	private int m_K;
+
+	// root of KD-tree
+	/**
+     * @uml.property  name="m_root"
+     * @uml.associationEnd  
+     */
+	private KDNode m_root;
+
+	// count of nodes
+	/**
+     * @uml.property  name="m_count"
+     */
+	private int m_count;
+
+	/**
+	 * Creates a KD-tree with specified number of dimensions.
+	 * 
+	 * @param k
+	 *            number of dimensions
+	 */
+	public KDTree(int k) {
+
+		m_K = k;
+		m_root = null;
 	}
 
-	public Node(String key) {
-		this.key = key;
-	}
+	/**
+	 * Insert a node in a KD-tree. Uses algorithm translated from 352.ins.c of
+	 * 
+	 * <PRE>
+	 *   &#064;Book{GonnetBaezaYates1991,                                   
+	 *     author =    {G.H. Gonnet and R. Baeza-Yates},
+	 *     title =     {Handbook of Algorithms and Data Structures},
+	 *     publisher = {Addison-Wesley},
+	 *     year =      {1991}
+	 *   }
+	 * </PRE>
+	 * 
+	 * @param key
+	 *            key for KD-tree node
+	 * @param value
+	 *            value at that key
+	 * 
+	 * @throws KeySizeException
+	 *             if key.length mismatches K
+	 * @throws KeyDuplicateException
+	 *             if key already in tree
+	 */
+	public void insert(Object[] key, Point value) {
 
-}
-
-class Bucket {
-	ArrayList<String> values;
-
-	// Node parent;
-	public Bucket() {
-		this.values = new ArrayList<String>();
-	}
-
-	public void put(String val) {
-		if (this.values == null) {
-			this.values = new ArrayList<String>();
+		if (key.length != m_K) {
+			throw new RuntimeException("kDTree: wrong key size!");
 		}
-		this.values.add(val);
-	}
-}
 
-public class KDTree {
+		else
+			m_root = KDNode.ins(new HPoint(key), value, m_root, 0, m_K);
 
-	Node root;
-	String key1Name;
-	String key2Name;
-	int max = 3;
-	int columnNumberOfKey1 = 0; // assign it to the column number of key one(the
-								// Table has a hashtable of columns, this
-								// variable
-								// is the index of the column that we build the
-								// index on )
-	int columnNumberOfKey2 = 0; // like the previous variable
-	table table; // assign it to the table you build the kd on
-
-	public KDTree(int maxPerBucket) {
-		key1Name = "";
-		key2Name = "";
-		this.root = new Node();
-		root.level = 1;
-		root.parent = null;
-		root.leftBucket = new Bucket();
-		root.rightBucket = new Bucket();
-		this.max = maxPerBucket;
+		m_count++;
 	}
 
-	public KDTree(Node root) {
-		this.root = root;
+	/**
+	 * Find KD-tree node whose key is identical to key. Uses algorithm
+	 * translated from 352.srch.c of Gonnet & Baeza-Yates.
+	 * 
+	 * @param key
+	 *            key for KD-tree node
+	 * 
+	 * @return object at key, or null if not found
+	 * 
+	 * @throws KeySizeException
+	 *             if key.length mismatches K
+	 */
+	public Point search(Object[] key) {
+
+		if (key.length != m_K) {
+			throw new RuntimeException("kDTree: wrong key size!");
+		}
+
+		KDNode kd = KDNode.srch(new HPoint(key), m_root, m_K);
+
+		return (kd == null ? null : kd.v);
 	}
 
-	public void put(String k1, String k2, String value) {
-		if (root.key == null) {
-			root.key = k1;
-			root.leftBucket.put(value);
+	/**
+	 * Delete a node from a KD-tree. Instead of actually deleting node and
+	 * rebuilding tree, marks node as deleted. Hence, it is up to the caller to
+	 * rebuild the tree as needed for efficiency.
+	 * 
+	 * @param key
+	 *            key for KD-tree node
+	 * 
+	 * @throws KeySizeException
+	 *             if key.length mismatches K
+	 * @throws KeyMissingException
+	 *             if no node in tree has key
+	 */
+	public void delete(Object[] key) {
 
-		} else {
-			int level = 1;
-			Node current = root;
-			int cmp = 0;
-			Node parent = null;
-			while (current != null) {
-				if (level % 2 == 1) {
-					cmp = k1.compareTo(current.key);
-				} else {
-					cmp = k2.compareTo(current.key);
-				}
-				parent = current;
-				if (cmp >= 0) {
-					current = current.left;
-				} else {
-					current = current.right;
-				}
-				level = 1 - level;
-			}
+		if (key.length != m_K) {
+			throw new RuntimeException("kDTree: wrong key size!");
+		}
 
-			if (cmp >= 0) {
-				if (parent.leftBucket == null) {
-					parent.leftBucket = new Bucket();
-					parent.leftBucket.put(value);
-				} else {
-					Bucket tempbucket = parent.leftBucket;
-					if (tempbucket.values.size() < this.max) {
-						parent.leftBucket.put(value);
-					} else {
-						Node tempNode = new Node();
-						tempNode.parent = parent;
-						parent.left = tempNode;
-						int parentLevel = parent.level;
-						tempNode.level = 1 - parentLevel;
-						ArrayList<String> a = loadAllValuesInBucket(tempbucket);
-						parent.leftBucket = null;
-						tempNode.leftBucket = new Bucket();
-						tempNode.rightBucket = new Bucket();
-						for (String s : a) {
-							// redistribute the original bucket on left and
-							// right buckets of the new node
-							String[] listOfvaluesInRecord = s.split(",");
-							String compareVal = "";
-							int compareIndex = 0;
-							if (tempNode.level % 2 == 1) { // compare k1
-								compareVal = getAvg(a, 1);
-								compareIndex = columnNumberOfKey1;
-							} else { // compare k2
-								compareVal = getAvg(a, 2);
-								compareIndex = columnNumberOfKey2;
-							}
-							tempNode.key = compareVal;
-							if (listOfvaluesInRecord[compareIndex]
-									.compareTo(tempNode.key) >= 0) {
-								tempNode.leftBucket
-										.put(listOfvaluesInRecord[compareIndex]);
-							} else {
-								tempNode.rightBucket
-										.put(listOfvaluesInRecord[compareIndex]);
-							}
+		else {
 
-						}
-						// int cmp2 = 0;
-						// if (tempNode.level % 2 == 1) {
-						// cmp2 = k1.compareTo(tempNode.key);
-						// }
-						// else {
-						// cmp2 = k2.compareTo(tempNode.key);
-						// }
-						// if (cmp2 >= 0) {
-						// tempNode.leftBucket.put(value);
-						// }
-						// else {
-						// tempNode.leftBucket.put(value);
-						// }
-						//
-					}
-				}
+			KDNode t = KDNode.srch(new HPoint(key), m_root, m_K);
+			if (t == null) {
+				throw new RuntimeException("kDTree: key missing!");
 			} else {
-				if (parent.rightBucket == null) {
-					parent.rightBucket = new Bucket();
-					parent.rightBucket.put(value);
-				} else {
-
-					Bucket tempbucket = parent.rightBucket;
-					if (tempbucket.values.size() < this.max) {
-						parent.rightBucket.put(value);
-					} else {
-						Node tempNode = new Node();
-						tempNode.parent = parent;
-						parent.right = tempNode;
-						int parentLevel = parent.level;
-						tempNode.level = 1 - parentLevel;
-						ArrayList<String> a = loadAllValuesInBucket(tempbucket);
-						parent.rightBucket = null;
-						tempNode.leftBucket = new Bucket();
-						tempNode.rightBucket = new Bucket();
-						for (String s : a) {
-							// redistribute the original bucket on left and
-							// right buckets of the new node
-							String[] listOfvaluesInRecord = s.split(",");
-							String compareVal = "";
-							int compareIndex = 0;
-							if (tempNode.level % 2 == 1) { // compare k1
-								compareVal = getAvg(a, 1);
-								compareIndex = columnNumberOfKey1;
-							} else { // compare k2
-								compareVal = getAvg(a, 2);
-								compareIndex = columnNumberOfKey2;
-							}
-							tempNode.key = compareVal;
-							if (listOfvaluesInRecord[compareIndex]
-									.compareTo(tempNode.key) >= 0) {
-								tempNode.leftBucket
-										.put(listOfvaluesInRecord[compareIndex]);
-							} else {
-								tempNode.rightBucket
-										.put(listOfvaluesInRecord[compareIndex]);
-							}
-
-						}
-						int cmp2 = 0;
-						if (tempNode.level % 2 == 1) {
-							cmp2 = k1.compareTo(tempNode.key);
-						} else {
-							cmp2 = k2.compareTo(tempNode.key);
-						}
-						if (cmp2 >= 0) {
-							tempNode.leftBucket.put(value);
-						} else {
-							tempNode.leftBucket.put(value);
-						}
-					}
-
-				}
-
+				t.deleted = true;
 			}
+
+			m_count--;
 		}
 	}
 
-	// get the average value in the bucket to be the new key
-	public String getAvg(ArrayList<String> a, int keyNumber) {
-		String avg = "";
-		String[] toBeSorted = new String[a.size()];
-		int index = 0;
-		if (keyNumber == 1) {
-			index = columnNumberOfKey1;
-		} else {
-			index = columnNumberOfKey2;
-		}
-		int i = 0;
-		for (String string : a) {
-			String[] columnValues = string.split(",");
-			toBeSorted[i] = columnValues[index];
-			i++;
-		}
-		Arrays.sort(toBeSorted);
-		avg = toBeSorted[a.size() / 2];
-		return avg;
+	/**
+	 * Find KD-tree node whose key is nearest neighbor to key. Implements the
+	 * Nearest Neighbor algorithm (Table 6.4) of
+	 * 
+	 * <PRE>
+	 * &#064;techreport{AndrewMooreNearestNeighbor,
+	 *   author  = {Andrew Moore},
+	 *   title   = {An introductory tutorial on kd-trees},
+	 *   institution = {Robotics Institute, Carnegie Mellon University},
+	 *   year    = {1991},
+	 *   number  = {Technical Report No. 209, Computer Laboratory, 
+	 *              University of Cambridge},
+	 *   address = {Pittsburgh, PA}
+	 * }
+	 * </PRE>
+	 * 
+	 * @param key
+	 *            key for KD-tree node
+	 * 
+	 * @return object at node nearest to key, or null on failure
+	 * 
+	 * @throws KeySizeException
+	 *             if key.length mismatches K
+	 */
+	public Object nearest(Object[] key) {
+
+		Object[] nbrs = nearest(key, 1);
+		return nbrs[0];
 	}
 
-	// The bucket stores references to the records, so we need to get the record
-	// to compare them to redistribute the records in new buckets after
-	// resizing occurs
-	public ArrayList<String> loadAllValuesInBucket(Bucket b) {
-		ArrayList<String> result = new ArrayList<String>();
-		ArrayList<String> valInBucket = b.values;
-		for (String string : valInBucket) {
-			String[] pos = string.split(",");
-			String tableName = pos[0];
-			String pageNumber = pos[1];
-			String recordNumber = pos[2];
-			// load The page to get the record and add it to the result
-			Page p = this.table.pages.get(Integer.parseInt(pageNumber));
-			String[] r = p.content[Integer.parseInt(recordNumber)];
-			String r1 = "";
-			for (int i = 0; i < r.length; i++) {
-				r1 += r[i] + ",";
-			}
-			r1 = r1.substring(0, r1.length() - 1);
-			result.add(r1);
+	/**
+	 * Find KD-tree nodes whose keys are <I>n</I> nearest neighbors to key. Uses
+	 * algorithm above. Neighbors are returned in ascending order of distance to
+	 * key.
+	 * 
+	 * @param key
+	 *            key for KD-tree node
+	 * @param n
+	 *            how many neighbors to find
+	 * 
+	 * @return objects at node nearest to key, or null on failure
+	 * 
+	 * @throws KeySizeException
+	 *             if key.length mismatches K
+	 * @throws IllegalArgumentException
+	 *             if <I>n</I> is negative or exceeds tree size
+	 */
+	public Object[] nearest(Object[] key, int n) {
+
+		if (n < 0 || n > m_count) {
+			throw new IllegalArgumentException("Number of neighbors ("+n+") cannot"
+					+ " be negative or greater than number of nodes ("+m_count+").");
 		}
-		return result;
+
+		if (key.length != m_K) {
+			throw new RuntimeException("kDTree: wrong key size!");
+		}
+
+		Object[] nbrs = new Object[n];
+		NearestNeighborList nnl = new NearestNeighborList(n);
+
+		// initial call is with infinite hyper-rectangle and max distance
+		HRect hr = HRect.infiniteHRect(key.length);
+		double max_dist_sqd = Double.MAX_VALUE;
+		HPoint keyp = new HPoint(key);
+
+		KDNode.nnbr(m_root, keyp, hr, max_dist_sqd, 0, m_K, nnl);
+
+		for (int i = 0; i < n; ++i) {
+			KDNode kd = (KDNode) nnl.removeHighest();
+			nbrs[n - i - 1] = kd.v;
+		}
+
+		return nbrs;
 	}
 
-	public ArrayList<String> get(String k1, String k2) {
-		ArrayList<String> result = new ArrayList<String>();
-		if (root.key == null) {
-			return result;
-		} else {
-			int level = 1;
-			Node current = root;
-			int cmp = 0;
-			Node parent = null;
-			while (current != null) {
-				if (level % 2 == 1) {
-					cmp = k1.compareTo(current.key);
-				} else {
-					cmp = k2.compareTo(current.key);
-				}
-				parent = current;
-				if (cmp >= 0) {
-					current = current.left;
-				} else {
-					current = current.right;
-				}
-				level = 1 - level;
-			}
-			// check on number of values per bucket
+	/**
+	 * Range search in a KD-tree. Uses algorithm translated from 352.range.c of
+	 * Gonnet & Baeza-Yates.
+	 * 
+	 * @param lowk
+	 *            lower-bounds for key
+	 * @param uppk
+	 *            upper-bounds for key
+	 * 
+	 * @return array of Objects whose keys fall in range [lowk,uppk]
+	 * 
+	 * @throws KeySizeException
+	 *             on mismatch among lowk.length, uppk.length, or K
+	 */
+	public Object[] range(Object[] lowk, Object[] uppk) {
 
-			if (cmp >= 0) {
-				if (parent.leftBucket == null) {
-					parent.leftBucket.values = new ArrayList<String>();
-				}
-				return parent.leftBucket.values;
-			} else {
-				if (parent.rightBucket == null) {
-					parent.rightBucket.values = new ArrayList<String>();
-				}
-				return parent.rightBucket.values;
+		if (lowk.length != uppk.length) {
+			throw new RuntimeException("kDTree: wrong key size!");
+		}
+
+		else if (lowk.length != m_K) {
+			throw new RuntimeException("kDTree: wrong key size!");
+		}
+
+		else {
+			Vector<KDNode> v = new Vector<KDNode>();
+			KDNode.rsearch(new HPoint(lowk), new HPoint(uppk), m_root, 0, m_K, v);
+			Object[] o = new Object[v.size()];
+			for (int i = 0; i < v.size(); ++i) {
+				KDNode n = v.elementAt(i);
+				o[i] = n.v;
 			}
+			return o;
 		}
 	}
 
+	public String toString() {
+		return m_root.toString(0);
+	}
+	
 	public static void main(String[] args) {
-		KDTree k = new KDTree(3);
-		k.put("mariam", "25", "Employee,2,4");
-		k.put("sara", "21", "Employee,4,6");
-		k.put("ssara", "22", "Employee,4,5");
-		k.put("sssara", "22", "Employee,4,5");
-		k.put("alaa", "24", "Employee,2,5");
-		k.columnNumberOfKey1 = 3;
-		k.columnNumberOfKey2 = 4;
-		// ArrayList<String> tempRecords = new ArrayList<String>();
-		// tempRecords.add("1,0,1,aariam,25");
-		// tempRecords.add("1,0,2,sara,41");
-		// tempRecords.add("1,0,3,aager,35");
-		// tempRecords.add("1,0,4,yara,21");
-		// System.out.println(k.getAvg(tempRecords, 2));
-		System.out.println(k.root.rightBucket.values.size());
-		System.out.println(k.root.left.leftBucket.values.size());
-		System.out.println(k.root.left.leftBucket.values.size());
+		
+		KDTree kdt = new KDTree(2);
+		
+		for(int i = 0; i < 100; i++)
+		{
+			Integer[] keys = {i, i + 1};
+			
+			kdt.insert(keys, new Point(i + 5, i + 5));
+			
+		}
+		
+		for(int i = 0; i < 100; i++)
+		{
+			Integer[] keys = {i, i + 1};
+			
+			System.out.println(kdt.search(keys));
+		}
+		
 	}
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

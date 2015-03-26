@@ -415,35 +415,35 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		}
 	}
 
-	public static void main(String[] args) {
-		ExtensibleHashTable test = new ExtensibleHashTable(2);
-		for(int i = 0 ; i <= 1000 ; i++) {
-			test.put(i, new Point(i, i));
-			//			System.out.println(test.buckets.size());
-		}
-		//	for(int i = 0 ; i < 10 ; i++) {
-		//		System.out.println(test.hash(1));
-		//	}
-		//	for(int i = 0 ; i < test.buckets.size() ; i++) {
-		//		System.out.println(i);
-		//		Bucket temp = test.buckets.get(i);
-		//	for(int j = 0 ; j < temp.lastItem ; j++) {
-		//			System.out.print(temp.entries[j].value + " ");
-		//		}
-		//		System.out.println();
-		//		System.out.println("--------");
-		//	}
-		//	test.put(1, new Point(1 , 1));
-		//	test.put(2, new Point(2 , 2));
-		//	test.put(3, new Point(3 , 3));
-		//	test.put(4, new Point(4 , 4));
-		System.out.println(test.get(500));
-		System.out.println(test.buckets.size());
-		for (int i = 0; i <= 1000 ; i++) {
-			if(i == 500)
-				System.out.println();
-			System.out.print(test.get(i).x + "" + test.get(i).y);
-		}
-	}
+//	public static void main(String[] args) {
+//		ExtensibleHashTable test = new ExtensibleHashTable(2);
+//		for(int i = 0 ; i <= 1000 ; i++) {
+//			test.put(i, new Point(i, i));
+//			//			System.out.println(test.buckets.size());
+//		}
+//		//	for(int i = 0 ; i < 10 ; i++) {
+//		//		System.out.println(test.hash(1));
+//		//	}
+//		//	for(int i = 0 ; i < test.buckets.size() ; i++) {
+//		//		System.out.println(i);
+//		//		Bucket temp = test.buckets.get(i);
+//		//	for(int j = 0 ; j < temp.lastItem ; j++) {
+//		//			System.out.print(temp.entries[j].value + " ");
+//		//		}
+//		//		System.out.println();
+//		//		System.out.println("--------");
+//		//	}
+//		//	test.put(1, new Point(1 , 1));
+//		//	test.put(2, new Point(2 , 2));
+//		//	test.put(3, new Point(3 , 3));
+//		//	test.put(4, new Point(4 , 4));
+//		System.out.println(test.get(500));
+//		System.out.println(test.buckets.size());
+//		for (int i = 0; i <= 1000 ; i++) {
+//			if(i == 500)
+//				System.out.println();
+//			System.out.print(test.get(i).x + "" + test.get(i).y);
+//		}
+//	}
 
 }
