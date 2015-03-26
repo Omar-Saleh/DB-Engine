@@ -218,7 +218,7 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 	/**
 	 * @author   Omar Saleh
 	 */
-	class Bucket {
+	class Bucket implements Serializable {
 		/**
 		 * @uml.property  name="entries"
 		 * @uml.associationEnd  multiplicity="(0 -1)"
@@ -326,7 +326,7 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 	/**
 	 * @author   Omar Saleh
 	 */
-	class LHTEntry implements Entry<Object, Point>{
+	class LHTEntry implements Entry<Object, Point> , Serializable {
 		/**
 		 * @uml.property  name="key"
 		 * @uml.associationEnd  
@@ -375,18 +375,18 @@ public class ExtensibleHashTable implements Map<Object, Point> , Serializable {
 		}
 	}
 
-	public static void main(String[] args) {
-		ExtensibleHashTable test = new ExtensibleHashTable(0.75f, 2);
-		for(int i = 0 ; i <= 1000 ; i++) {
-			test.put(i, new Point(i, i));
+//	public static void main(String[] args) {
+//		ExtensibleHashTable test = new ExtensibleHashTable(0.75f, 2);
+//		for(int i = 0 ; i <= 1000 ; i++) {
+//			test.put(i, new Point(i, i));
 		//	System.out.println(test.buckets.size());
-		}
+//		}
 //		System.out.println(test.get(1).x);
 //		for (int i = 0; i <= 1000; i++) {
 //			if(i == 500)
 //				System.out.println();
 //			System.out.print(test.get(i).x + "" + test.get(i).y);
 //		}
-	}
+//	}
 
 }

@@ -14,10 +14,7 @@ public class DBApp {
 	public void createTable(String name , Hashtable<String, String> name_type , Hashtable<String, String> name_ref , String key)
 	throws IOException {
 		int cols = name_type.size();
-		table newTable = new table(name, cols , name_type);
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name)));
-		out.writeObject(newTable);
-		out.close();
+		new table(name, cols , name_type , key);
 	}
 	
 	
