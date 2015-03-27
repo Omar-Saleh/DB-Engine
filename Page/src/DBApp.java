@@ -48,29 +48,29 @@ public class DBApp {
 	}
 	
 	public void createIndex(String name , String Colname) throws IOException , ClassNotFoundException {
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name)));
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name)));
 		Table load = (Table) in.readObject();
 		in.close();
 		load.indexes.add(Colname);
 		ExtensibleHashTable newIndex = new ExtensibleHashTable(2);
 		for(int i = 0 ; i <= load.p_index ; i++) {
-			in = new ObjectInputStream(new FileInputStream(new File(name + "page" + i)));
+			in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + "page" + i)));
 			Page toBeInserted = (Page) in.readObject();
 			in.close();
 			for(int j = 0 ; j < toBeInserted.index ; j++) {
 				newIndex.put(toBeInserted.data[j][load.cNames.get(Colname)], new Point(i, j));
 			}
 		}
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name)));
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name)));
 		out.writeObject(load);
 		out.close();
-		out = new ObjectOutputStream(new FileOutputStream(new File(name + Colname + "hash")));
+		out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + Colname + "hash")));
 		out.writeObject(newIndex);
 		out.close();
 	}
 	
 	public void insertIntoTable(String name , Hashtable<String, String> values) throws IOException , ClassNotFoundException {
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name)));
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name)));
 		Table load = (Table) in.readObject();
 		in.close();
 		load.insertIntoPage(values);
@@ -78,7 +78,7 @@ public class DBApp {
 	
 	public void createMultiDimIndex(String name, ArrayList<String> colNames) throws FileNotFoundException, IOException, ClassNotFoundException
 	{
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name)));
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name)));
 		Table load = (Table) in.readObject();
 		in.close();
 		KDTree kdt = new KDTree(colNames.size());
@@ -101,28 +101,28 @@ public class DBApp {
 				kdt.insert(insert, new Point(i , j));
 			}
 		}
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name)));
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name)));
 		out.writeObject(load);
 		out.close();
-		out = new ObjectOutputStream(new FileOutputStream(new File(name + temp + "kdt")));
+		out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + temp + "kdt")));
 		out.writeObject(kdt);
 		out.close();
 	}
 	
 	public void deleteFromTable(String name, Hashtable<String,String> htblColNameValue, String opr) throws Exception {
 		
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name)));
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name)));
 		Table t = (Table)in.readObject();
 		ArrayList<Point> toBeDeleted = t.selectFromPages(htblColNameValue,  opr);
 		in.close();
 		
 		for(int i = 0; i < toBeDeleted.size(); i++)
 		{
-			in =  new ObjectInputStream(new FileInputStream(new File(name + "page" + toBeDeleted.get(i).x)));
+			in =  new ObjectInputStream(new FileInputStream(new File("./data/" + name + "page" + toBeDeleted.get(i).x)));
 			Page p = (Page)in.readObject();
 			in.close();
 			p.data[(int) toBeDeleted.get(i).y][t.cols] = true;
-			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + toBeDeleted.get(i).x)));
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + "page" + toBeDeleted.get(i).x)));
 			out.writeObject(p);
 			out.close();
 		}
@@ -170,16 +170,16 @@ public class DBApp {
 		
 //		Hashtable<String, String> values = new Hashtable<>();
 //		values.put("ID", "3");
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("Studentpage0")));
-		Page temp = (Page) in.readObject();
-		in.close();
-		in = new ObjectInputStream(new FileInputStream(new File("Student")));
-		Table temp1 = (Table) in.readObject();
-		in.close();
-//		//ArrayList<Point> test = temp.selectFromPages(values, "OR");
-//		
-//		x.deleteFromTable("Student", values, "or");
-		System.out.println(temp.data[0][temp1.cols]);
+//		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("Studentpage0")));
+//		Page temp = (Page) in.readObject();
+//		in.close();
+//		in = new ObjectInputStream(new FileInputStream(new File("Student")));
+//		Table temp1 = (Table) in.readObject();
+//		in.close();
+////		//ArrayList<Point> test = temp.selectFromPages(values, "OR");
+////		
+////		x.deleteFromTable("Student", values, "or");
+//		System.out.println(temp.data[0][temp1.cols]);
 //		
 //		
 //		

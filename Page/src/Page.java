@@ -19,7 +19,7 @@ public class Page implements Serializable {
 	public Page(String name , int num , int cols) throws IOException {
 		this.num = num;
 		data = new Object[200][cols + 1];
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + num)));
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + "page" + num)));
 		out.writeObject(this);
 		out.close();
 	}

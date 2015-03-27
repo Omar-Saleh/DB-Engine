@@ -31,15 +31,15 @@ public class Table implements Serializable {
 		this.name = name;
 		this.cols = cols;
 		indexes.add(key);
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name)));
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name)));
 		ExtensibleHashTable key_index = new ExtensibleHashTable(2);
 		out.writeObject(this);
 		out.close();
-		out = new ObjectOutputStream(new FileOutputStream(new File(name + key + "hash")));
+		out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + key + "hash")));
 		out.writeObject(key_index);
 		out.close();
 		Page first = new Page(name, p_index, cols);
-		out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + p_index)));
+		out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + "page" + p_index)));
 		out.writeObject(first);
 		out.close();
 	}
@@ -55,7 +55,7 @@ public class Table implements Serializable {
 	public void insertIntoPage(Hashtable<String, String> values) throws IOException , ClassNotFoundException {
 		p_index = (size / 200);
 		try {
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + "page" + p_index)));
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + "page" + p_index)));
 			Page load = (Page) in.readObject();
 			in.close();
 			Set<String> keys = values.keySet();
@@ -67,14 +67,14 @@ public class Table implements Serializable {
 			load.data[load.index][cols] = false;
 			load.index = load.index + 1;
 			size++;
-			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + p_index)));
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + "page" + p_index)));
 			out.writeObject(load);
 			out.close();
 			for(int i = 0 ; i < indexes.size() ; i++) {
-				in = new ObjectInputStream(new FileInputStream(new File(name + indexes.get(i) + "hash")));
+				in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + indexes.get(i) + "hash")));
 				ExtensibleHashTable temp = (ExtensibleHashTable) in.readObject();
 				temp.put(values.get(indexes.get(i)), new Point(p_index, load.index - 1));
-				out = new ObjectOutputStream(new FileOutputStream(new File(name + indexes.get(i) + "hash")));
+				out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + indexes.get(i) + "hash")));
 				out.writeObject(temp);
 				out.close();
 			}
@@ -83,18 +83,18 @@ public class Table implements Serializable {
 				for(int j = 0 ; j < multiIndexes.get(i).length ; j++) {
 					temp += multiIndexes.get(i)[j];
 				}
-				in = new ObjectInputStream(new FileInputStream(new File(name + temp + "kdt")));
+				in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + temp + "kdt")));
 				KDTree kdt = (KDTree) in.readObject();
 				Object[] insert = new Object[multiIndexes.get(i).length];
 				for(int k = 0 ; k  < multiIndexes.get(i).length ; k++) {
 					insert[k] = values.get(multiIndexes.get(i)[k]);
 				}
 				kdt.insert(insert, new Point(p_index, load.index - 1));
-				out = new ObjectOutputStream(new FileOutputStream(new File(name + temp + "kdt")));
+				out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + temp + "kdt")));
 				out.writeObject(kdt);
 				out.close();
 			}
-			out = new ObjectOutputStream(new FileOutputStream(new File(name)));
+			out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name)));
 			out.writeObject(this);
 			out.close();
 		}
@@ -165,14 +165,14 @@ public class Table implements Serializable {
 		int index = 0;
 		for(String key : keys) {
 			if(indexes.contains(key)) {
-				ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + key + "hash")));
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + key + "hash")));
 				ExtensibleHashTable temp = (ExtensibleHashTable) in.readObject();
 				in.close();
 				results[index].add(new Point(temp.get(values.get(key)).x , temp.get(values.get(key)).y));
 			}
 			else {
 				for(int i = 0 ; i <= p_index ; i++) {
-					ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + "page" + i)));
+					ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + "page" + i)));
 					Page loaded = (Page) in.readObject();
 					int field = cNames.get(key);
 					for(int j = 0 ; j < loaded.index ; j++) {
@@ -194,7 +194,7 @@ public class Table implements Serializable {
 		int size = 0;
 		Object[][] iteratable = new Object[result.size()][cols];
 		for(int i = 0 ; i < result.size() ; i++) {
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + "page" + result.get(i).x)));
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + "page" + result.get(i).x)));
 			Page load = (Page) in.readObject();
 			in.close();
 			if ((boolean) (load.data[result.get(i).y][cols]))
