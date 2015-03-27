@@ -156,10 +156,12 @@ public class DBApp {
 	}
 	
 	
-	public Iterator<Object[]> selectFromTable(String name, Hashtable<String, String> htblColNameValue, String opr) {
+	public Iterator<Object[]> selectFromTable(String name, Hashtable<String, String> htblColNameValue, String opr) throws Exception {
 		
-		return null;
-		
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name)));
+		Table t = (Table)in.readObject();
+		ArrayList<Point> toBeComputed = t.selectFromPages(htblColNameValue, opr);
+		return t.returnSelect(toBeComputed);
 	}
 	
 	

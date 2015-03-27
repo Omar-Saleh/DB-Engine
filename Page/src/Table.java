@@ -26,7 +26,7 @@ public class Table implements Serializable {
 	HashMap<String, Integer> cNames = new HashMap<String, Integer>();
 	ArrayList<String> indexes = new ArrayList<String>();
 	ArrayList<String[]> multiIndexes = new ArrayList<String[]>();
-	
+
 	public Table(String name , int cols , Hashtable<String, String> name_type , String key) throws IOException {
 		mapCols(name_type);
 		this.name = name;
@@ -107,17 +107,17 @@ public class Table implements Serializable {
 			new Page(name ,p_index, cols);
 			insertIntoPage(values);
 		}
-	//	System.out.println("here");
+		//	System.out.println("here");
 	}
-	
+
 	public ArrayList<Point> anding(ArrayList<Point>[] toBeAnded)
 	{
 		ArrayList<Point> result = new ArrayList<Point>();
-		
+
 		for(int i = 0; i < toBeAnded[0].size();i++)
 		{
 			boolean flag = false;
-			
+
 			for(int j = 1; j < toBeAnded.length; j++)
 			{
 				if(!toBeAnded[j].contains(toBeAnded[0].get(i)))
@@ -125,23 +125,23 @@ public class Table implements Serializable {
 					flag = true;
 					break;
 				}
-				
+
 				if(!flag)
 				{
 					result.add(toBeAnded[0].get(i));
 				}
 			}
-				
+
 		}
-		
+
 		return result;
 	}
-	
+
 	public ArrayList<Point> oring(ArrayList<Point>[] toBeOred)
 	{
 		ArrayList<Point> result = new ArrayList<Point>();
 		HashMap<Point, Integer> hm = new HashMap<Point, Integer>();
-		
+
 		for(int i = 0; i < toBeOred.length; i++)
 		{
 			for(int j = 0; j < toBeOred[i].size(); j++)
@@ -149,17 +149,17 @@ public class Table implements Serializable {
 				hm.put(toBeOred[i].get(j), 1);
 			}
 		}
-		
+
 		Set<Point> points = hm.keySet();
-		
+
 		for(Point p : points)
 		{
 			result.add(p);
 		}
-		
+
 		return result;
 	}
-	
+
 	public ArrayList<Point> selectFromPages(Hashtable<String, String> values , String opr) throws Exception {
 		ArrayList<Point> result = new ArrayList<Point>();
 		ArrayList<Point>[] results = new ArrayList[values.size()];
@@ -194,39 +194,49 @@ public class Table implements Serializable {
 		result = this.oring(results);
 		return result;
 	}
-	
-	public Iterable<Object[]> returnSelect(ArrayList<Point> result) throws Exception {
+
+	public Iterator<Object[]> returnSelect(ArrayList<Point> result) throws Exception {
 		int size = 0;
 		Object[][] iteratable = new Object[result.size()][cols];
 		for(int i = 0 ; i < result.size() ; i++) {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + "page" + result.get(i).x)));
 			Page load = (Page) in.readObject();
 			in.close();
-			if ((boolean) (load.data[result.get(i).y][cols]))
-			for (int j = 0 ; j < cols ; j++) {
-				iteratable[size][j] = load.data[result.get(i).y][j];
+			if ((boolean) (load.data[result.get(i).y][cols])) {
+				for (int j = 0 ; j < cols ; j++) {
+					iteratable[size][j] = load.data[result.get(i).y][j];
+					size++;
+				}
 			}
 		}
-		return null;
+		ArrayList<Object[]>  results = new ArrayList<Object[]>();
+		for(int i = 0 ; i < size ; i++) {
+			Object[] x = new Object[cols];
+			for(int j = 0 ; j < cols ; j++) {
+				x[j] = iteratable[i][j];
+			}
+			results.add(x);
+		}
+		return results.iterator();
 	}
 
-//	public static void main(String[] args) throws Exception {
-//		HashMap<String, Integer> cNames = new HashMap<String, Integer>();
-//		cNames.put("Name", 1);
-//		cNames.put("Age", 2);
-//		table x = new table("test", 2 , cNames);
-//		Hashtable<String, String> values = new Hashtable<String, String>();
-//		values.put("Name", "Ahmad");
-//		values.put("Age" , "5");
-//		x.insertIntoPage(values);
-//		values.clear();
-//		values.put("Name", "Omar");
-//		values.put("Age" , "20");
-//		x.insertIntoPage(values);
-//		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("testpage1")));
-//		page test = (page) in.readObject();
-//		System.out.println(test.data[0][0] + " " + test.data[0][1] + " " + test.data[0][2]);
-//		System.out.println(test.data[1][0] + " " + test.data[1][1] + " " + test.data[1][2]);
-//	}
+	//	public static void main(String[] args) throws Exception {
+	//		HashMap<String, Integer> cNames = new HashMap<String, Integer>();
+	//		cNames.put("Name", 1);
+	//		cNames.put("Age", 2);
+	//		table x = new table("test", 2 , cNames);
+	//		Hashtable<String, String> values = new Hashtable<String, String>();
+	//		values.put("Name", "Ahmad");
+	//		values.put("Age" , "5");
+	//		x.insertIntoPage(values);
+	//		values.clear();
+	//		values.put("Name", "Omar");
+	//		values.put("Age" , "20");
+	//		x.insertIntoPage(values);
+	//		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("testpage1")));
+	//		page test = (page) in.readObject();
+	//		System.out.println(test.data[0][0] + " " + test.data[0][1] + " " + test.data[0][2]);
+	//		System.out.println(test.data[1][0] + " " + test.data[1][1] + " " + test.data[1][2]);
+	//	}
 
 }
