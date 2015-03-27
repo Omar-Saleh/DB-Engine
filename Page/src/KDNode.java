@@ -85,7 +85,8 @@ class KDNode implements Serializable{
             // }
         }
 
-        else if (((Integer) key.coord[lev]).compareTo((Integer) t.k.coord[lev])> 0) {
+        else if (compare(key.coord[lev] , t.k.coord[lev]) > 0) {
+        //((Integer) key.coord[lev]).compareTo((Integer) t.k.coord[lev])> 0) {
             t.right = ins(key, val, t.right, (lev + 1) % K, K);
         } else {
             t.left = ins(key, val, t.left, (lev + 1) % K, K);

@@ -85,30 +85,30 @@ public class DBApp {
 	
 	public static void main(String[] args) throws Exception {
 ////		// TODO Auto-generated method stub
+//        DBApp x = new DBApp();
+//        ArrayList<String> al = new ArrayList<String>();
+//        al.add("Age");
+//        al.add("ID");
+//        x.createMultiDimIndex("Student", al);
 //		Hashtable<String, String> types = new Hashtable<>();
 //		types.put("Name", "String");
 //		types.put("ID", "Integer");
 //		types.put("Age", "Integer");
-        DBApp x = new DBApp();
-        ArrayList<String> al = new ArrayList<String>();
-        al.add("Age");
-        al.add("ID");
-        x.createMultiDimIndex("Student", al);
 //		x.createTable("Student" , types, types, "ID");
 //		Hashtable<String, String> values = new Hashtable<>();
-//		values.put("Name", "Omar");
-//		values.put("ID", "2");
-//		values.put("Age" , "21");
+//		values.put("Name", "Clay");
+//		values.put("ID", "3");
+//		values.put("Age" , "22");
 //		x.insertIntoTable("Student", values);
 //    	x.createIndex("Student",  "Age");
 		
-//		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("StudentAgeIDkdt")));
-//		KDTree temp = (KDTree) in.readObject();
-//		in.close();
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("StudentAgeIDkdt")));
+		KDTree temp = (KDTree) in.readObject();
+		in.close();
+//		System.out.println(temp.get("3"));
+	    String[] arr = {"22", "3"};
 //		
-//	    String[] arr = {"Age", "ID"};
-//		
-//		System.out.println(temp.search(arr));
+		System.out.println(temp.search(arr));
 //		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("Student")));
 //		out.writeObject(temp);
 //		out.close();

@@ -35,6 +35,10 @@ public class Table implements Serializable {
 		out = new ObjectOutputStream(new FileOutputStream(new File(name + key + "hash")));
 		out.writeObject(key_index);
 		out.close();
+		Page first = new Page(name, p_index, cols);
+		out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + p_index)));
+		out.writeObject(first);
+		out.close();
 	}
 
 	private void mapCols(Hashtable<String, String> name_type) {
@@ -78,7 +82,11 @@ public class Table implements Serializable {
 				}
 				in = new ObjectInputStream(new FileInputStream(new File(name + temp + "kdt")));
 				KDTree kdt = (KDTree) in.readObject();
-				kdt.insert(multiIndexes.get(i), new Point(p_index, load.index - 1));
+				Object[] insert = new Object[multiIndexes.get(i).length];
+				for(int k = 0 ; k  < multiIndexes.get(i).length ; k++) {
+					insert[k] = values.get(multiIndexes.get(i)[k]);
+				}
+				kdt.insert(insert, new Point(p_index, load.index - 1));
 				out = new ObjectOutputStream(new FileOutputStream(new File(name + temp + "kdt")));
 				out.writeObject(kdt);
 				out.close();
