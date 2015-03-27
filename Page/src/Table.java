@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -187,6 +188,21 @@ public class Table implements Serializable {
 		}
 		result = this.oring(results);
 		return result;
+	}
+	
+	public Iterable<Object[]> returnSelect(ArrayList<Point> result) throws Exception {
+		int size = 0;
+		Object[][] iteratable = new Object[result.size()][cols];
+		for(int i = 0 ; i < result.size() ; i++) {
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + "page" + result.get(i).x)));
+			Page load = (Page) in.readObject();
+			in.close();
+			if ((boolean) (load.data[result.get(i).y][cols]))
+			for (int j = 0 ; j < cols ; j++) {
+				iteratable[size][j] = load.data[result.get(i).y][j];
+			}
+		}
+		return null;
 	}
 
 //	public static void main(String[] args) throws Exception {
