@@ -85,7 +85,18 @@ public class DBApp {
 		out.close();
 	}
 	
-	public void deleteFromTable(String name, Hashtable<String,String> htblColNameValue, String opr) {
+	public void deleteFromTable(String name, Hashtable<String,String> htblColNameValue, String opr) throws Exception {
+		
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name)));
+		Table t = (Table)in.readObject();
+		ArrayList<Point> toBeDeleted = t.selectFromPages(htblColNameValue,  opr);
+		
+		for(int i = 0; i < toBeDeleted.size(); i++)
+		{
+			in =  new ObjectInputStream(new FileInputStream(new File(name + "page" + toBeDeleted.get(i).getX())));
+			Page p = (Page)in.readObject();
+			p.data[(int) toBeDeleted.get(i).getY()][t.cols] = true;
+		}
 		
 	}
 	
@@ -96,9 +107,11 @@ public class DBApp {
 		
 	}
 	
+	
+	
 	public static void main(String[] args) throws Exception {
 ////		// TODO Auto-generated method stub
-//        DBApp x = new DBApp();
+        DBApp x = new DBApp();
 //        ArrayList<String> al = new ArrayList<String>();
 //        al.add("Age");
 //        al.add("ID");
@@ -115,17 +128,29 @@ public class DBApp {
 //		x.insertIntoTable("Student", values);
 //    	x.createIndex("Student",  "Age");
 		
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("StudentAgeIDkdt")));
-		KDTree temp = (KDTree) in.readObject();
-		in.close();
+//		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("StudentAgeIDkdt")));
+//		KDTree temp = (KDTree) in.readObject();
+//		in.close();
 //		System.out.println(temp.get("3"));
-	    String[] arr = {"22", "3"};
+//	    String[] arr = {"22", "3"};
 //		
-		System.out.println(temp.search(arr));
+//		System.out.println(temp.search(arr));
 //		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("Student")));
 //		out.writeObject(temp);
 //		out.close();
 		
+		Hashtable<String, String> values = new Hashtable<>();
+		values.put("ID", "3");
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("Studentpage0")));
+		Page temp = (Page) in.readObject();
+		in.close();
+		in = new ObjectInputStream(new FileInputStream(new File("Student")));
+		Table temp1 = (Table) in.readObject();
+		in.close();
+		//ArrayList<Point> test = temp.selectFromPages(values, "OR");
+		
+		x.deleteFromTable("Student", values, "or");
+		System.out.println(temp.data[0][temp1.cols]);
 		
 		
 		
