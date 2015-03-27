@@ -170,8 +170,31 @@ public class Table implements Serializable {
 		for(int i = 0 ; i < results.length ; i++) {
 			results[i] = new ArrayList<Point>();
 		}
-		Set<String> keys = values.keySet();
 		int index = 0;
+		for(int i = 0 ; i < multiIndexes.size() ; i++) {
+			String temp = "";
+			Object[] toBeSeached = new Object[multiIndexes.get(i).length];
+			boolean flag = true;
+			for(int j = 0 ; j < multiIndexes.get(i).length ; j++) {
+				temp += multiIndexes.get(i)[j];
+				toBeSeached[j] = values.get(multiIndexes.get(i)[j]);
+				if(!values.containsKey(multiIndexes.get(i)[j])) {
+					flag = false;	
+					break;
+				}
+			}
+			if(flag) {
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + temp + "kdt")));
+				KDTree tree = (KDTree) in.readObject();
+				in.close();
+				results[index].add(tree.search(toBeSeached));
+				index++;
+				for(int j = 0 ; j < multiIndexes.get(i).length; j++) {
+					values.remove(multiIndexes.get(i)[j]);
+				}
+			}
+		}
+		Set<String> keys = values.keySet();
 		for(String key : keys) {
 			if(indexes.contains(key)) {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + key + "hash")));
