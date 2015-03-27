@@ -63,12 +63,16 @@ public class DBApp {
 			indexes[i] = colNames.get(i);
 		}
 		load.multiIndexes.add(indexes);
-		for(int i = 0 ; i < load.p_index ; i++) {
+		for(int i = 0 ; i <= load.p_index ; i++) {
 			in = new ObjectInputStream(new FileInputStream(new File(name + "page" + i)));
 			Page toBeInserted = (Page) in.readObject();
 			in.close();
 			for(int j = 0 ; j < toBeInserted.index ; j++) {
-				kdt.insert(indexes, new Point(i , j));
+				Object[] insert = new Object[colNames.size()];
+				for(int k = 0 ; k  < colNames.size() ; k++) {
+					insert[k] = toBeInserted.data[j][load.cNames.get(colNames.get(k))];
+				}
+				kdt.insert(insert, new Point(i , j));
 			}
 		}
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name)));
@@ -85,17 +89,36 @@ public class DBApp {
 //		types.put("Name", "String");
 //		types.put("ID", "Integer");
 //		types.put("Age", "Integer");
-//		DBApp x = new DBApp();
+        DBApp x = new DBApp();
+        ArrayList<String> al = new ArrayList<String>();
+        al.add("Age");
+        al.add("ID");
+        x.createMultiDimIndex("Student", al);
 //		x.createTable("Student" , types, types, "ID");
 //		Hashtable<String, String> values = new Hashtable<>();
-//		values.put("Name", "Ahmad");
-//		values.put("ID", "1");
-//		values.put("Age" , "20");
+//		values.put("Name", "Omar");
+//		values.put("ID", "2");
+//		values.put("Age" , "21");
 //		x.insertIntoTable("Student", values);
-		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("Studentpage0")));
-		Page temp = (Page) in.readObject();
-		in.close();
-		System.out.println(temp.data[0][0]);
+//    	x.createIndex("Student",  "Age");
+		
+//		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("StudentAgeIDkdt")));
+//		KDTree temp = (KDTree) in.readObject();
+//		in.close();
+//		
+//	    String[] arr = {"Age", "ID"};
+//		
+//		System.out.println(temp.search(arr));
+//		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("Student")));
+//		out.writeObject(temp);
+//		out.close();
+		
+		
+		
+		
+//		for(String index : temp.multiIndexes.get(0)) {
+//			System.out.println(index);
+//			}
 	}
 
 }

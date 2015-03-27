@@ -28,6 +28,11 @@
 
 
 import java.awt.Point;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Vector;
 
@@ -276,24 +281,30 @@ public class KDTree implements Serializable{
 		return m_root.toString(0);
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
-		KDTree kdt = new KDTree(2);
+//		KDTree kdt = new KDTree(2);
+//		
+//		for(int i = 0; i < 100; i++)
+//		{
+//			Integer[] keys = {i, i + 1};
+//			
+//			kdt.insert(keys, new Point(i + 5, i + 5));
+//			
+//		}
+//		
+//		for(int i = 0; i < 100; i++)
+//		{
+//			Integer[] keys = {i, i + 1};
+//			
+//			System.out.println(kdt.search(keys));
+//		}
 		
-		for(int i = 0; i < 100; i++)
-		{
-			Integer[] keys = {i, i + 1};
-			
-			kdt.insert(keys, new Point(i + 5, i + 5));
-			
-		}
-		
-		for(int i = 0; i < 100; i++)
-		{
-			Integer[] keys = {i, i + 1};
-			
-			System.out.println(kdt.search(keys));
-		}
+
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("StudentAgeIDkdt")));
+		KDTree temp = (KDTree) in.readObject();
+		in.close();
+		System.out.println(temp.m_count);
 		
 	}
 	

@@ -94,14 +94,28 @@ class KDNode implements Serializable{
         return t;
     }
 
+    
+    public static int compare(Object o1, Object o2)
+    {
+    	if(o1 instanceof String)
+    		return ((String) o1).compareTo((String) o2);
+    	if(o1 instanceof Integer)
+    		return ((Integer) o1).compareTo((Integer) o2);
+    	if(o1 instanceof Character)
+    		return ((Character) o1).compareTo((Character) o2);
+    	return -1;
+    }
+    
     // Method srch translated from 352.srch.c of Gonnet & Baeza-Yates
     protected static KDNode srch(HPoint key, KDNode t, int K) {
 
+    	//((Integer) key.coord[lev]).compareTo((Integer) t.k.coord[lev])> 0
+    	
         for (int lev = 0; t != null; lev = (lev + 1) % K) {
 
             if (!t.deleted && key.equals(t.k)) {
                 return t;
-            } else if (((Integer) key.coord[lev]).compareTo((Integer) t.k.coord[lev])> 0) {
+            } else if (compare(key.coord[lev] , t.k.coord[lev]) > 0) {
                 t = t.right;
             } else {
                 t = t.left;
