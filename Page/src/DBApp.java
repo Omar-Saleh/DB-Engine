@@ -90,12 +90,17 @@ public class DBApp {
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name)));
 		Table t = (Table)in.readObject();
 		ArrayList<Point> toBeDeleted = t.selectFromPages(htblColNameValue,  opr);
+		in.close();
 		
 		for(int i = 0; i < toBeDeleted.size(); i++)
 		{
-			in =  new ObjectInputStream(new FileInputStream(new File(name + "page" + toBeDeleted.get(i).getX())));
+			in =  new ObjectInputStream(new FileInputStream(new File(name + "page" + toBeDeleted.get(i).x)));
 			Page p = (Page)in.readObject();
-			p.data[(int) toBeDeleted.get(i).getY()][t.cols] = true;
+			in.close();
+			p.data[(int) toBeDeleted.get(i).y][t.cols] = true;
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File(name + "page" + toBeDeleted.get(i).x)));
+			out.writeObject(p);
+			out.close();
 		}
 		
 	}
@@ -139,21 +144,21 @@ public class DBApp {
 //		out.writeObject(temp);
 //		out.close();
 		
-		Hashtable<String, String> values = new Hashtable<>();
-		values.put("ID", "3");
+//		Hashtable<String, String> values = new Hashtable<>();
+//		values.put("ID", "3");
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("Studentpage0")));
 		Page temp = (Page) in.readObject();
 		in.close();
 		in = new ObjectInputStream(new FileInputStream(new File("Student")));
 		Table temp1 = (Table) in.readObject();
 		in.close();
-		//ArrayList<Point> test = temp.selectFromPages(values, "OR");
-		
-		x.deleteFromTable("Student", values, "or");
+//		//ArrayList<Point> test = temp.selectFromPages(values, "OR");
+//		
+//		x.deleteFromTable("Student", values, "or");
 		System.out.println(temp.data[0][temp1.cols]);
-		
-		
-		
+//		
+//		
+//		
 //		for(String index : temp.multiIndexes.get(0)) {
 //			System.out.println(index);
 //			}
