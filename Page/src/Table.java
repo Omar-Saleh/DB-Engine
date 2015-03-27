@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -101,6 +102,56 @@ public class Table implements Serializable {
 			insertIntoPage(values);
 		}
 	//	System.out.println("here");
+	}
+	
+	public ArrayList<Point> anding(ArrayList<Point>[] toBeAnded)
+	{
+		ArrayList<Point> result = new ArrayList<Point>();
+		
+		for(int i = 0; i < toBeAnded[0].size();i++)
+		{
+			boolean flag = false;
+			
+			for(int j = 1; j < toBeAnded.length; j++)
+			{
+				if(!toBeAnded[j].contains(toBeAnded[0].get(i)))
+				{
+					flag = true;
+					break;
+				}
+				
+				if(!flag)
+				{
+					result.add(toBeAnded[0].get(i));
+				}
+			}
+				
+		}
+		
+		return result;
+	}
+	
+	public ArrayList<Point> oring(ArrayList<Point>[] toBeOred)
+	{
+		ArrayList<Point> result = new ArrayList<Point>();
+		HashMap<Point, Integer> hm = new HashMap<Point, Integer>();
+		
+		for(int i = 0; i < toBeOred.length; i++)
+		{
+			for(int j = 0; j < toBeOred[i].size(); j++)
+			{
+				hm.put(toBeOred[i].get(j), 1);
+			}
+		}
+		
+		Set<Point> points = hm.keySet();
+		
+		for(Point p : points)
+		{
+			result.add(p);
+		}
+		
+		return result;
 	}
 	
 	public ArrayList<Point> selectFromPages(Hashtable<String, String> values , String opr) throws Exception {
