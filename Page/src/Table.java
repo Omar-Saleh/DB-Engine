@@ -13,6 +13,7 @@ import java.util.Hashtable;
 import java.util.Set;
 
 
+
 public class Table implements Serializable {
 
 	String name;
@@ -100,6 +101,36 @@ public class Table implements Serializable {
 			insertIntoPage(values);
 		}
 	//	System.out.println("here");
+	}
+	
+	public ArrayList<Point> selectFromPages(Hashtable<String, String> values , String opr) throws Exception {
+		ArrayList<Point>[] results = new ArrayList[values.size()];
+		for(int i = 0 ; i < results.length ; i++) {
+			results[i] = new ArrayList<Point>();
+		}
+		Set<String> keys = values.keySet();
+		int index = 0;
+		for(String key : keys) {
+			if(indexes.contains(key)) {
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + key + "hash")));
+				ExtensibleHashTable temp = (ExtensibleHashTable) in.readObject();
+				in.close();
+				results[index].add(new Point(temp.get(values.get(key)).x , temp.get(values.get(key)).y));
+			}
+			else {
+				for(int i = 0 ; i <= p_index ; i++) {
+					ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(name + "page" + i)));
+					Page loaded = (Page) in.readObject();
+					int field = cNames.get(key);
+					for(int j = 0 ; j < loaded.index ; j++) {
+						if(((String) loaded.data[j][field]).equals(values.get(key))) {
+							results[index].add(new Point(i , j));
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 //	public static void main(String[] args) throws Exception {

@@ -8,6 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
+
 
 
 public class DBApp {
@@ -81,6 +83,17 @@ public class DBApp {
 		out = new ObjectOutputStream(new FileOutputStream(new File(name + temp + "kdt")));
 		out.writeObject(kdt);
 		out.close();
+	}
+	
+	public void deleteFromTable(String name, Hashtable<String,String> htblColNameValue, String opr) {
+		
+	}
+	
+	
+	public Iterator<Object[]> selectFromTable(String name, Hashtable<String, String> htblColNameValue, String opr) {
+		
+		return null;
+		
 	}
 	
 	public static void main(String[] args) throws Exception {
