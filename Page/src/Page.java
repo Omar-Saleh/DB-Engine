@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Scanner;
 
 
@@ -18,7 +19,11 @@ public class Page implements Serializable {
 	
 	public Page(String name , int num , int cols) throws IOException {
 		this.num = num;
-		data = new Object[200][cols + 1];
+		File file = new File("./config/DBApp.properties");
+		FileInputStream in = new FileInputStream(file);
+		Properties properties = new Properties();
+		properties.load(in);
+		data = new Object[Integer.parseInt(properties.getProperty("MaximumRowsCountinPage"))][cols + 1];
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + "page" + num)));
 		out.writeObject(this);
 		out.close();

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 
@@ -32,7 +33,11 @@ public class Table implements Serializable {
 		this.cols = cols;
 		indexes.add(key);
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name)));
-		ExtensibleHashTable key_index = new ExtensibleHashTable(2);
+		File file = new File("./config/DBApp.properties");
+		FileInputStream in1 = new FileInputStream(file);
+		Properties properties = new Properties();
+		properties.load(in1);
+		ExtensibleHashTable key_index = new ExtensibleHashTable(Integer.parseInt(properties.getProperty("BucketSize")));
 		out.writeObject(this);
 		out.close();
 		out = new ObjectOutputStream(new FileOutputStream(new File("./data/" + name + key + "hash")));

@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 
 
@@ -18,7 +19,7 @@ public class DBApp {
 
 	
 	
-	public DBApp()
+	public DBApp() throws IOException
 	{
 		init();
 	}
@@ -42,9 +43,16 @@ public class DBApp {
 		
 	}
 	
-	public void init()
+	public void init() throws IOException
 	{
 		new File("./data/metadata.csv");
+		Properties properties = new Properties();
+		properties.setProperty("MaximumRowsCountinPage", "200");
+		properties.setProperty("BucketSize", "3");
+		File file = new File("./config/DBApp.properties");
+		FileOutputStream fileOut = new FileOutputStream(file);
+		properties.store(fileOut, "DB Engine");
+		fileOut.close();
 	}
 	
 	public void createIndex(String name , String Colname) throws IOException , ClassNotFoundException {
@@ -52,7 +60,11 @@ public class DBApp {
 		Table load = (Table) in.readObject();
 		in.close();
 		load.indexes.add(Colname);
-		ExtensibleHashTable newIndex = new ExtensibleHashTable(2);
+		File file = new File("./config/DBApp.properties");
+		FileInputStream in1 = new FileInputStream(file);
+		Properties properties = new Properties();
+		properties.load(in1);
+		ExtensibleHashTable newIndex = new ExtensibleHashTable(Integer.parseInt(properties.getProperty("BucketSize")));
 		for(int i = 0 ; i <= load.p_index ; i++) {
 			in = new ObjectInputStream(new FileInputStream(new File("./data/" + name + "page" + i)));
 			Page toBeInserted = (Page) in.readObject();
@@ -145,11 +157,11 @@ public class DBApp {
 //        al.add("Age");
 //        al.add("ID");
 //        x.createMultiDimIndex("Student", al);
-//		Hashtable<String, String> types = new Hashtable<>();
-//		types.put("Name", "String");
-//		types.put("ID", "Integer");
-//		types.put("Age", "Integer");
-//		x.createTable("Student" , types, types, "ID");
+		Hashtable<String, String> types = new Hashtable<>();
+		types.put("Name", "String");
+		types.put("ID", "Integer");
+		types.put("Age", "Integer");
+		x.createTable("Student" , types, types, "ID");
 //		Hashtable<String, String> values = new Hashtable<>();
 //		values.put("Name", "Clay");
 //		values.put("ID", "3");
