@@ -6,9 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Set;
 
 
 
@@ -16,11 +18,33 @@ public class DBApp {
 
 	
 	
+	public DBApp()
+	{
+		init();
+	}
 	
 	public void createTable(String name , Hashtable<String, String> name_type , Hashtable<String, String> name_ref , String key)
 	throws IOException {
 		int cols = name_type.size();
 		new Table(name, cols , name_type , key);
+		
+		Set<String> keys = name_type.keySet();
+		
+		for(String col : keys)
+		{
+			String entry = name;
+			entry += ", " + col + ",java.lang." + name_type.get(col) + ", " + (key.equals(col) ? "True" : "False") + ", " + (key.equals(col) ? "True" : "False") + "null";
+			PrintWriter pr = new PrintWriter("./data/metadata.csv");
+			pr.write(entry + "\n");
+			pr.flush();
+			pr.close();
+		}
+		
+	}
+	
+	public void init()
+	{
+		new File("./data/metadata.csv");
 	}
 	
 	public void createIndex(String name , String Colname) throws IOException , ClassNotFoundException {
