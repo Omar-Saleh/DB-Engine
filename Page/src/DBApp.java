@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class DBApp {
 
-	
+	static MyString intoCSV;	
 	
 	public DBApp() throws IOException
 	{
@@ -33,18 +33,32 @@ public class DBApp {
 		
 		for(String col : keys)
 		{
-			String entry = name;
-			entry += ", " + col + ",java.lang." + name_type.get(col) + ", " + (key.equals(col) ? "True" : "False") + ", " + (key.equals(col) ? "True" : "False") + "null";
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File("meta")));
+			intoCSV = (MyString)in.readObject();
+			String s = intoCSV.myString;
+			
+			s += name;
+			s += ", " + col + ",java.lang." + name_type.get(col) + ", " + (key.equals(col) ? "True" : "False") + ", " + (key.equals(col) ? "True" : "False") + "null\n";
 			PrintWriter pr = new PrintWriter("./data/metadata.csv");
-			pr.write(entry + "\n");
+			pr.write(s);
 			pr.flush();
 			pr.close();
+			
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("meta"));
+			out.writeObject(intoCSV);
+			out.close();
 		}
 		
 	}
 	
 	public void init() throws IOException
 	{
+
+		new File("./data/metadata.csv");
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("meta"));
+		out.writeObject(intoCSV);
+		out.close();
+
 		new File("./data/metadata.csv");
 		Properties properties = new Properties();
 		properties.setProperty("MaximumRowsCountinPage", "200");
