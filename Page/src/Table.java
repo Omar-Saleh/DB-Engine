@@ -155,6 +155,7 @@ public class Table implements Serializable {
 	}
 	
 	public ArrayList<Point> selectFromPages(Hashtable<String, String> values , String opr) throws Exception {
+		ArrayList<Point> result = new ArrayList<Point>();
 		ArrayList<Point>[] results = new ArrayList[values.size()];
 		for(int i = 0 ; i < results.length ; i++) {
 			results[i] = new ArrayList<Point>();
@@ -181,7 +182,11 @@ public class Table implements Serializable {
 				}
 			}
 		}
-		return null;
+		if(opr.equalsIgnoreCase("and")) {
+			result = this.anding(results);
+		}
+		result = this.oring(results);
+		return result;
 	}
 
 //	public static void main(String[] args) throws Exception {
